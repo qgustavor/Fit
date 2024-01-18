@@ -1,6 +1,12 @@
 Fit
 =====================
 
+This work was made in order to try to fix [this issue](https://github.com/mattatz/Fit/issues/4) but also includes changes that I made trying to make it run on [Deno](https://deno.com/) without Webpack.
+
+**The fork development was abandoned** because, during testing, seems like it underperformed SVGnest, at least for the use case I have.
+
+=====================
+
 Irregular bin packing library by JavaScript.  
 *Fit* is a port of *[SVGnest](https://github.com/Jack000/SVGnest)* project for modularity.  
 
@@ -22,8 +28,12 @@ let bins = [
   // array of 2D Bins
   new Fit.Bin(
     1,    // unique id for each bins
-    1200, // width of a bin
-    600   // height of a bin
+    [   // array of 2D points
+      [0, 0],
+      [100, 0],
+      [120, 400],
+      ...
+    ]
   ),
   ...
 ]

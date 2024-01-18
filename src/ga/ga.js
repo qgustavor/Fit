@@ -1,5 +1,5 @@
 
-import DNA from './dna'
+import DNA from './dna.js'
 
 export default class GA {
 

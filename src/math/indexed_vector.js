@@ -1,4 +1,4 @@
-import Vector from './vector'
+import Vector from './vector.js'
 
 export default class IndexedVector extends Vector {
 

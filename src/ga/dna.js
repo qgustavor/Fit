@@ -1,5 +1,5 @@
 
-import { stdSeed } from '../math/gaussian'
+import { stdSeed } from '../math/gaussian.js'
 
 export default class DNA {
 

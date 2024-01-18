@@ -1,6 +1,6 @@
-import Svg from './svg'
-import Vector from './vector'
-import BoundingBox from './bounding_box'
+import Svg from './svg.js'
+import Vector from './vector.js'
+import BoundingBox from './bounding_box.js'
 
 export default class Polygon extends Svg {
 

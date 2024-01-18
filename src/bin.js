@@ -1,24 +1,18 @@
-import Part from './part'
-import Vector from './math/vector'
+import Part from './part.js'
+import Vector from './math/vector.js'
 
 export default class Bin extends Part {
 
-  constructor(id, width, height, options) {
-    let points = [
-      new Vector(0, 0),
-      new Vector(width, 0),
-      new Vector(width, height),
-      new Vector(0, height)
-    ]
+  constructor(id, rawPoints, options) {
+    let points = rawPoints.map(e => new Vector(e[0], e[1]))
 
     super(id, points, options)
-    this.width = width
-    this.height = height
+    this.rawPoints = rawPoints
     this.isBin = true
   }
 
   static fromJSON(json) {
-    let bin = new Bin(json.id, json.width, json.height, json.options)
+    let bin = new Bin(json.id, json.rawPoints, json.options)
     bin.offset = (json.offset !== undefined) ? new Vector(json.offset.x, json.offset.y) : new Vector(0, 0)
     bin.rotation = json.rotation || 0
     bin.groupId = json.groupId
@@ -26,7 +20,7 @@ export default class Bin extends Part {
   }
 
   clone() {
-    let bin = new Bin(this.id, this.width, this.height, this.options)
+    let bin = new Bin(this.id, this.rawPoints, this.options)
     bin.offset = new Vector(this.offset.x, this.offset.y)
     bin.rotation = this.rotation
     bin.groupId = this.groupId

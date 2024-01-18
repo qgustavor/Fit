@@ -1,4 +1,3 @@
-
 export default class Placement {
 
   constructor (bin, part, position, rotation) {

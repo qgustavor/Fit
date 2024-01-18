@@ -1,17 +1,16 @@
+import XorShift from './math/xorshift.js'
 
-import XorShift from './math/xorshift'
+import GA from './ga/ga.js'
 
-import GA from './ga/ga'
+import CreatePlaceWorker from './workers/place.worker.js'
+import CreateNfpWorker from './workers/nfp.worker.js'
 
-import PlaceWorker from './workers/place.worker'
-import NfpWorker from './workers/nfp.worker'
+let placeWorker = CreatePlaceWorker()
+let nfpWorker = CreateNfpWorker()
 
-let placeWorker = new PlaceWorker()
-let nfpWorker = new NfpWorker()
-
-import { createUniqueKey, offsetPolygon } from './util'
-import Part from './part'
-import Bin from './bin'
+import { createUniqueKey, offsetPolygon } from './util.js'
+import Part from './part.js'
+import Bin from './bin.js'
 
 export default class Packer {
 
@@ -115,8 +114,8 @@ export default class Packer {
     if (placeWorker !== undefined)
       placeWorker.terminate()
 
-    nfpWorker = new NfpWorker()
-    placeWorker = new PlaceWorker()
+    placeWorker = CreatePlaceWorker()
+    nfpWorker = CreateNfpWorker()
   }
 
   transform(dna, parts, range) {

@@ -1,11 +1,11 @@
 
-import { approximately, bounds, createUniqueKey, toClipperCoordinates, toNestCoordinates, clipperScale, clipperThreshold } from '../util'
-import Polygon from '../math/polygon'
-import Part from '../part'
-import Bin from '../bin'
-import Vector from '../math/vector'
+import { approximately, bounds, createUniqueKey, toClipperCoordinates, toNestCoordinates, clipperScale, clipperThreshold } from '../util.js'
+import Polygon from '../math/polygon.js'
+import Part from '../part.js'
+import Bin from '../bin.js'
+import Vector from '../math/vector.js'
 import ClipperLib from 'clipper-lib'
-import Placement from '../placement'
+import Placement from '../placement.js'
 
 const place = function (bins, parts, nfpCache) {
 

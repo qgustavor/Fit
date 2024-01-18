@@ -1,6 +1,5 @@
-
-import Polygon from './math/polygon'
-import Vector from './math/vector'
+import Polygon from './math/polygon.js'
+import Vector from './math/vector.js'
 
 export default class Part extends Polygon {
   constructor(id, points, options) {

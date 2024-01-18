@@ -1,9 +1,9 @@
-
 import ClipperLib from 'clipper-lib'
-import Vector from './math/vector'
-import IndexedVector from './math/indexed_vector'
-import Polygon from './math/polygon'
-import BoundingBox from './math/bounding_box'
+import Vector from './math/vector.js'
+import IndexedVector from './math/indexed_vector.js'
+import Polygon from './math/polygon.js'
+import BoundingBox from './math/bounding_box.js'
+import { intersect as getIntersection } from './js-intersect.js'
 
 const TOL = 1e-9
 
@@ -357,7 +357,7 @@ const polygonSlideDistance = function (A, B, direction, ignoreNegative) {
   return distance
 }
 
-// project each point of B onto A in the given direction, and return the 
+// project each point of B onto A in the given direction, and return the
 const polygonProjectionDistance = function (A, B, direction) {
   let AP = A.points.slice(0)
   let BP = B.points.slice(0)
@@ -576,7 +576,14 @@ const searchStartPoint = function(A, B, inside, NFP) {
         }
 
         let startPoint = B.offset.clone()
-        if (((Binside && inside) || (!Binside && !inside)) && !intersect(A, B) && !inNfp(startPoint, NFP)) {
+        if (
+          (
+            (Binside && inside) ||
+            (!Binside && !inside)
+          ) &&
+          !intersect(A, B) &&
+          !inNfp(startPoint, NFP)
+        ) {
           return startPoint
         }
 
@@ -662,7 +669,7 @@ const noFitRectanglePolygon = function (A, B) {
 
   // Returns null if B is larger than A
   if (
-    (bbb.max.x - bbb.min.x > abb.max.x - abb.min.x) || 
+    (bbb.max.x - bbb.min.x > abb.max.x - abb.min.x) ||
     (bbb.max.y - bbb.min.y > abb.max.y - abb.min.y)
   ) {
     return null
@@ -681,9 +688,43 @@ const noFitRectanglePolygon = function (A, B) {
   ])
 }
 
+// interior NFP for the case where A is made from right angles and B is approximated to a rectangle
+const noFitSimplifiedPolygon = function (A, B) {
+  const abb = A.bounds()
+  const bbb = B.bounds()
+
+  // Returns null if B is larger than A
+  if (
+    (bbb.max.x - bbb.min.x > abb.max.x - abb.min.x) ||
+    (bbb.max.y - bbb.min.y > abb.max.y - abb.min.y)
+  ) {
+    return null
+  }
+
+  const width = bbb.max.x - bbb.min.x
+  const widthTranslated = A.translate(-width, 0)
+  const widthIntersection = getIntersection(A.points, widthTranslated.points)
+  if (widthIntersection.length === 0) return null
+  const widthPolygon = new Polygon(widthIntersection[0].map(e => new Vector(e.x, e.y)))
+  if (widthPolygon.area() < 0) widthPolygon.points.reverse()
+
+  const height = bbb.max.y - bbb.min.y
+  const heightTranslated = widthPolygon.translate(0, -height)
+  const heightIntersection = getIntersection(widthPolygon.points, heightTranslated.points)
+  if (heightIntersection.length === 0) return null
+  const heightPolygon = new Polygon(heightIntersection[0].map(e => new Vector(e.x, e.y)))
+  if (heightPolygon.area() < 0) heightPolygon.points.reverse()
+    
+  const translateX = B.points[0].x - bbb.min.x
+  const translateY = B.points[0].y - bbb.min.y
+  const translatedPolygon = heightPolygon.translate(translateX, translateY)
+
+  return translatedPolygon
+}
+
 // given a static polygon A and a movable polygon B, compute a no fit polygon by orbiting B about A
 // if the inside flag is set, B is orbited inside of A rather than outside
-// if the edges flag is set, all edges of A are explored for NFPs - multiple 
+// if the edges flag is set, all edges of A are explored for NFPs - multiple
 const noFitPolygon = function (A, B, inside = false, edges = false, debug = false) {
 
   // Initialize all vertices
@@ -715,13 +756,12 @@ const noFitPolygon = function (A, B, inside = false, edges = false, debug = fals
 
   let startPoint = null
 
-  if (!inside) {
-    // shift B such that the bottom-most point of B is at the top-most point of A. This guarantees an initial placement with no intersections
-    startPoint = A.points[minAindex].sub(B.points[maxBindex])
-  }
-  else {
+  if (inside) {
     // no reliable heuristic for inside
     startPoint = searchStartPoint(A.clone(), B.clone(), true)
+  } else {
+    // shift B such that the bottom-most point of B is at the top-most point of A. This guarantees an initial placement with no intersections
+    startPoint = A.points[minAindex].sub(B.points[maxBindex])
   }
 
   let result = []
@@ -981,10 +1021,12 @@ const createUniqueKey = function (A, B, inside) {
 export {
   approximately,
   bounds,
-  clipperScale, clipperThreshold,
+  clipperScale,
+  clipperThreshold,
   toClipperCoordinates,
   toNestCoordinates,
   noFitRectanglePolygon,
+  noFitSimplifiedPolygon,
   noFitPolygon,
   minkowskiDifference,
   offsetPolygon,
